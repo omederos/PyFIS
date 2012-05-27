@@ -8,8 +8,8 @@ from fis.parser import RuleEvaluator
 
 class ParserTests(unittest.TestCase):
     def setUp(self):
-        from fis.parser import Parser
-        self.parser = Parser()
+        from fis.parser import RuleParser
+        self.parser = RuleParser()
 
     def test_one_variable(self):
         result = self.parser.parse('A = B')

@@ -8,7 +8,7 @@ class RuleEvaluator(object):
 
     """
     def __init__(self):
-        self.parser = Parser()
+        self.parser = RuleParser()
 
     def evaluate(self, variables, rule_head):
         """
@@ -22,7 +22,7 @@ class RuleEvaluator(object):
         return var.membership_value
 
 
-class Parser(object):
+class RuleParser(object):
     """
     Parsea una regla y la convierte a código Python lista para evaluarse
 
