@@ -10,14 +10,14 @@ class RuleEvaluator(object):
     def __init__(self):
         self.parser = Parser()
 
-    def evaluate(self, variables, rule):
+    def evaluate(self, variables, rule_head):
         """
         Evalua el encabezado de la regla dada
 
         El parametro 'variables' es utilizado en el codigo que se evaluará
         utilizando la función 'eval'
         """
-        parsed = self.parser.parse(rule)
+        parsed = self.parser.parse(rule_head)
         print parsed
         var = eval(parsed)
         print var

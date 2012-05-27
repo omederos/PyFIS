@@ -46,24 +46,49 @@ class VariableDefinition(object):
 
 class Variable(object):
     """
-    Representa una variable linguistica.
+    Representa una variable linguistica (abstracta)
 
-    Esta clase es necesaria pues redefine los operadores &, | y - unario
     Contiene la siguiente informacion:
     - Definicion de la variable ('definition')
     - Valor de la variable (ver clase 'Value')
-    - Valor obtenido al evaluar la funcion de membresia en el valor inicial
-      que tomó esta variable (ej. 0, 1, 0.2, etc.)
 
     """
-    def __init__(self, definition, value, membership_value):
+    def __init__(self, definition, value):
         self.definition = definition
         self.value = value
-        self.membership_value = membership_value
 
     def __str__(self):
-        return '%s = %s (%s)' % (self.definition.name, self.value,
-                                 self.membership_value)
+        return '%s = %s' % (self.definition.name, self.value)
+
+
+class OutputVariable(Variable):
+    def __init__(self, definition, value):
+        super(OutputVariable, self).__init__(definition, value)
+
+    def truncate(self, value):
+        """
+        Trunca la funcion de membresia asociada a esta variable
+
+        """
+        truncated_function = self.value.function.truncate(value)
+        self.value.function = truncated_function
+
+
+class InputVariable(Variable):
+    """
+    Esta clase es necesaria pues redefine los operadores &, | y - unario
+
+    Contiene:
+    - Todos los campos de 'Variable'
+    - Valor inicial
+    - Valor obtenido al evaluar la funcion de membresia en el valor inicial
+      que tomó esta variable (ej. 0, 1, 0.2, etc.)
+    """
+
+    def __init__(self, definition, value, input_value):
+        super(InputVariable, self).__init__(definition, value)
+        self.input_value = value
+        self.membership_value = self.value.function.evaluate(input_value)
 
     ### Redefinimos los operadores siguientes de acuerdo con la operación
     ### correspondiente en las reglas de la lógica de difusa
@@ -100,10 +125,9 @@ class VariableCollection(list):
         """
         for var in self:
             if var.name == variable:
-                function = var.get_value(value).function
-
-                membership_value = function.evaluate(self.input[var.name])
-                return Variable(var, value, membership_value)
+                for v in var.values:
+                    if v.value == value:
+                        return InputVariable(var, v, self.input[var.name])
         return None
 
     def add_input(self, var, value):
@@ -116,3 +140,13 @@ class VariableCollection(list):
         - ...
         """
         self.input[var] = value
+
+
+class Rule(object):
+    def __init__(self, head, output_var):
+        self.head = head
+        self.orig_head = head
+        self.output_var = output_var
+
+    def __str__(self):
+        return '%s => %s' % (self.orig_head, self.output_var)

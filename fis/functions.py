@@ -13,6 +13,11 @@ class Point(object):
     def __str__(self):
         return "(%s,%s)" % (self.x, self.y)
 
+    def __eq__(self, other):
+        if not isinstance(other, Point):
+            return False
+        return other.x == self.x and other.y == self.y
+
 
 class TriangularFunction(object):
     """
@@ -48,6 +53,37 @@ class TriangularFunction(object):
 
         # Si el valor caerá en la recta 'cb'
         return (self.b.x - value) / (self.b.x - self.c.x) * self.c.y
+
+    def truncate(self, value):
+        """
+        Trunca la funcion (superiormente) por el valor especificado
+
+        Si la funcion es finalmente truncada, se convertira en una funcion
+        trapezoidal
+
+        Debe retornar la funcion resultante
+        """
+
+        # Si el valor esta por encima del triangulo
+        if value > self.c.y:
+            return self
+
+        if not value:
+            c = self.a
+            d = self.b
+        else:
+            value = float(value)
+            c = Point(
+                value * (self.c.x - self.a.x) / self.c.y + self.a.x,
+                value
+            )
+            d = Point(
+                value * (self.b.x - self.c.x) / self.c.y + self.c.x,
+                value
+            )
+
+        trapezoidal_function = TrapezoidalFunction(self.a, self.b, c, d)
+        return trapezoidal_function
 
     def __str__(self):
         return "Triangular Function: %s %s %s" % self.a, self.b, self.c
@@ -100,3 +136,31 @@ class TrapezoidalFunction(object):
     def __str__(self):
         return "Trapezoidal Function: %s %s %s %s" % (self.a, self.b, self.c,
                                                       self.d)
+
+    def truncate(self, value):
+        """
+        Trunca la funcion (superiormente) por el valor especificado
+
+        Genera los nuevos puntos basandose en la function 'truncate' del
+        triangulo, truncando los dos triangulos de las esquinas del trapecio
+        (DRY)
+
+        Retorna la funcion resultante con los puntos del trapecio modificados
+        """
+
+        # Si el valor esta por encima del triangulo o es cero
+        if value > self.c.y or value == 0:
+            return self
+
+        # Truncar el triangulo de la izquierda y coger el pto que nos interesa
+        f1 = TriangularFunction(self.a, Point(self.c.x, 0), self.c)
+        trap1 = f1.truncate(value)
+        self.c = trap1.c
+
+        # Truncar el triangulo de la derecha y coger el pto que nos interesa
+        f2 = TriangularFunction(Point(self.d.x, 0), self.b, self.d)
+        trap2 = f2.truncate(value)
+
+        self.d = trap2.d
+
+        return self
