@@ -15,7 +15,7 @@ class FIS(object):
     - Reglas
 
     """
-    def FIS(self, input_vars, output_var, rules):
+    def __init__(self, input_vars, output_var, rules):
         self.input_vars = input_vars
         self.rules = rules
         self.output_var = output_var
@@ -35,3 +35,5 @@ class FIS(object):
         for rule in self.rules:
             result = evaluator.evaluate(self.input_vars, rule.head)
             rule.output_var.truncate(result)
+
+        #TODO: Finish!

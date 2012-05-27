@@ -86,7 +86,7 @@ class TriangularFunction(object):
         return trapezoidal_function
 
     def __str__(self):
-        return "Triangular Function: %s %s %s" % self.a, self.b, self.c
+        return "Triangular Function: %s %s %s" % (self.a, self.b, self.c)
 
 
 class TrapezoidalFunction(object):

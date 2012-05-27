@@ -111,12 +111,13 @@ class InputParser(object):
         # Parseando los valores iniciales
         input_values = self.parse_input_values(text)
 
-        for var, value in input_values.items():
-            input_vars.add_input(var, value)
-
-        return input_vars, output_var_def, rules
+        return input_vars, output_var_def, rules, input_values
 
     def parse_input_vars(self, text):
+        """
+        Parsea las variables de entrada. Devuelve un VariableCollection
+
+        """
         pattern = re.compile(r'input: \((\w+)\) \((\w+)\) \((.*)\)')
         m = pattern.search(text)
 
@@ -143,6 +144,10 @@ class InputParser(object):
         return variables
 
     def parse_function(self, text):
+        """
+        Parsea el texto correspondiente a una funcion
+
+        """
         m = re.match('(triangulo|trapecio): (.*)', text)
         if not m:
             raise Exception('Error parseando la funcion: %s' % text)
@@ -166,6 +171,10 @@ class InputParser(object):
         return cls(*points)
 
     def parse_output_var(self, text):
+        """
+        Parsea la variable de salida y todos sus valores (con sus funciones)
+
+        """
         pattern = re.compile(r'output: \((\w+)\) \((\w+)\) \((.*)\)')
         m = pattern.search(text)
 
@@ -190,7 +199,10 @@ class InputParser(object):
         return VariableDefinition(name, values)
 
     def parse_rules(self, text, output_var_def):
+        """
+        Parsea el listado de reglas
 
+        """
         pattern = re.compile(r'rule: (.+?)\s+=>\s+(\w+)')
         m = pattern.search(text)
 
@@ -213,6 +225,10 @@ class InputParser(object):
         return rules
 
     def parse_input_values(self, text):
+        """
+        Parsea los valores iniciales
+
+        """
         pattern = re.compile(r'ini: (.+?)\s+=\s+([\d\.]+)')
         m = pattern.search(text)
 

@@ -15,6 +15,9 @@ class ValueDefinition(object):
         self.value = value
         self.function = function
 
+    def __str__(self):
+        return '%s %s' % (self.value, self.function)
+
 
 class VariableDefinition(object):
     """
