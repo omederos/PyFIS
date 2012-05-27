@@ -125,9 +125,8 @@ class VariableCollection(list):
         """
         for var in self:
             if var.name == variable:
-                for v in var.values:
-                    if v.value == value:
-                        return InputVariable(var, v, self.input[var.name])
+                return InputVariable(var, var.get_value(value),
+                    self.input[var.name])
         return None
 
     def add_input(self, var, value):
