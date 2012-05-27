@@ -177,3 +177,31 @@ class InputParserTests(unittest.TestCase):
         self.assertIsInstance(calidad.values[0].function, TriangularFunction)
         self.assertEqual(calidad.values[1].value, 'Regular')
         self.assertIsInstance(calidad.values[1].function, TrapezoidalFunction)
+
+    def test_parse_rules(self):
+        text = """
+        output: (Calidad) (Buena) (triangulo: (1,2) (3,4) (5,6))
+        output: (Calidad) (Regular) (trapecio: (1,2) (3,4) (5,6) (7,8))
+
+        rule: VarA = ValueA => Buena
+        rule: not(VarA = ValueA) => Buena
+        rule: VarA = ValueA and VarB = ValueB => Regular
+        rule: VarA = ValueA or VarB = ValueB => Regular
+        rule: (VarA = ValueA or VarB = ValueB) and ValueB = VarA => Buena
+        rule: not(VarA = ValueA or VarB = ValueB) => Regular
+        """
+        output_var_def = self.parser.parse_output_var(text)
+
+        rules = self.parser.parse_rules(text, output_var_def)
+        self.assertEqual(len(rules), 6)
+
+        self.assertEqual(rules[0].orig_head, 'VarA = ValueA')
+        # Asegurarnos de que se parsea la regla
+        self.assertEqual(rules[0].head,
+            'variables.get_var("VarA", "ValueA")')
+        self.assertEqual(rules[0].output_var.definition, output_var_def)
+        self.assertEqual(rules[0].output_var.value.value, 'Buena')
+
+        #...
+        
+        self.assertEqual(rules[5].output_var.value.value, 'Regular')

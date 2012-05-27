@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 import re
 from fis.definitions import (VariableCollection, VariableDefinition,
-                             ValueDefinition)
+                             ValueDefinition, Rule, OutputVariable)
 from fis.functions import Point, TriangularFunction, TrapezoidalFunction
 
 
@@ -73,11 +73,11 @@ class InputParser(object):
 
     # Reglas. Ejemplos de reglas:
     rule: Var1 = Value1 => output_Value1
-    rule: not(Var1 = Value1) => output_Value2
-    rule: Var1 = Value1 and Var2 = Value2 => output_Value3
-    rule: Var1 = Value1 or Var2 = Value2 => output_Value1
-    rule: (Var1 = Value1 or Var2 = Value2) and Value2 = Var1 => output_Value3
-    rule: not(Var1 = Value1 or Var2 = Value2) => output_Value2
+    rule: not(Var1 = Value1) => Output_Value2
+    rule: Var1 = Value1 and Var2 = Value2 => Output_Value3
+    rule: Var1 = Value1 or Var2 = Value2 => Output_Value1
+    rule: (Var1 = Value1 or Var2 = Value2) and Value2 = Var1 => Output_Value3
+    rule: not(Var1 = Value1 or Var2 = Value2) => Output_Value2
     ...
 
     # Valores iniciales de las variables:
@@ -87,6 +87,14 @@ class InputParser(object):
 
     """
     def parse(self, text):
+        """
+        Retorna una tupla con la siguiente informacion:
+        - Variables de entrada (VariableCollection)
+        - Variable de salida (VariableDefinition)
+        - Reglas (lista de Rule)
+
+        """
+
         # Si es un fichero, leemos su contenido
         if hasattr(text, 'read'):
             text = text.read()
@@ -94,8 +102,13 @@ class InputParser(object):
         # Parseando las variables de entrada
         input_vars = self.parse_input_vars(text)
 
-        # Parseando la variable de salida
-        output_var = self.parse_output_var(text)
+        # Parseando la definicion de la variable de salida
+        output_var_def = self.parse_output_var(text)
+
+        # Parseando las reglas
+        rules = self.parse_rules(text, output_var_def)
+
+        return input_vars, output_var_def, rules
 
     def parse_input_vars(self, text):
         pattern = re.compile(r'input: \((\w+)\) \((\w+)\) \((.*)\)')
@@ -169,3 +182,26 @@ class InputParser(object):
         values = d.items()[0][1]
 
         return VariableDefinition(name, values)
+
+    def parse_rules(self, text, output_var_def):
+
+        pattern = re.compile(r'rule: (.+?)\s+=>\s+(\w+)')
+        m = pattern.search(text)
+
+        parser = RuleParser()
+
+        rules = []
+
+        while m:
+            orig_head = m.group(1)
+            output = m.group(2)
+            head = parser.parse(orig_head)
+
+            output_value = output_var_def.get_value(output)
+            output_var = OutputVariable(output_var_def, output_value)
+
+            rules.append(Rule(orig_head, head, output_var))
+
+            m = pattern.search(text, m.end())
+
+        return rules

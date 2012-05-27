@@ -38,7 +38,6 @@ class VariableDefinition(object):
         for v in self.values:
             if v.value == value:
                 return v
-        return None
 
     def __str__(self):
         return 'Definition: %s %s' % (self.name, self.values)
@@ -141,9 +140,9 @@ class VariableCollection(list):
 
 
 class Rule(object):
-    def __init__(self, head, output_var):
+    def __init__(self, orig_head, head, output_var):
         self.head = head
-        self.orig_head = head
+        self.orig_head = orig_head
         self.output_var = output_var
 
     def __str__(self):
