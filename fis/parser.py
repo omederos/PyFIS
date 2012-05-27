@@ -108,6 +108,12 @@ class InputParser(object):
         # Parseando las reglas
         rules = self.parse_rules(text, output_var_def)
 
+        # Parseando los valores iniciales
+        input_values = self.parse_input_values(text)
+
+        for var, value in input_values.items():
+            input_vars.add_input(var, value)
+
         return input_vars, output_var_def, rules
 
     def parse_input_vars(self, text):
@@ -205,3 +211,16 @@ class InputParser(object):
             m = pattern.search(text, m.end())
 
         return rules
+
+    def parse_input_values(self, text):
+        pattern = re.compile(r'ini: (.+?)\s+=\s+([\d\.]+)')
+        m = pattern.search(text)
+
+        d = {}
+
+        while m:
+            d[m.group(1)] = float(m.group(2))
+
+            m = pattern.search(text, m.end())
+
+        return d

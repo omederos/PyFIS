@@ -203,5 +203,17 @@ class InputParserTests(unittest.TestCase):
         self.assertEqual(rules[0].output_var.value.value, 'Buena')
 
         #...
-        
+
         self.assertEqual(rules[5].output_var.value.value, 'Regular')
+
+    def test_parse_input_values(self):
+        text = """
+            ini: Calidad = 13
+            ini: Temperatura = 10
+            ini: Propina = 16.3
+            """
+        d = self.parser.parse_input_values(text)
+        self.assertEqual(len(d), 3)
+        self.assertEqual(d['Calidad'], 13)
+        self.assertEqual(d['Temperatura'], 10)
+        self.assertEqual(d['Propina'], 16.3)
