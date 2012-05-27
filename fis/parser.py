@@ -18,9 +18,7 @@ class RuleEvaluator(object):
         utilizando la función 'eval'
         """
         parsed = self.parser.parse(rule_head)
-        print parsed
         var = eval(parsed)
-        print var
         return var.membership_value
 
 
